@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import { Text, View, AsyncStorage } from 'react-native'
-import { ThemeContext } from './config/Themes'
-import Router from './config/Routes'
+import { AsyncStorage } from 'react-native'
+import { ThemeContext, themes } from './config/Themes'
+import Routes from './config/Routes'
 
 export default class App extends Component {
     constructor(props) {
@@ -10,10 +10,10 @@ export default class App extends Component {
             theme: null
         }
     }
-    componentDidMount() {
-        this.loadTheme()
+    async componentDidMount() {
+        await this.loadTheme()
     }
-    loadTheme() {
+    async loadTheme() {
         try {
             if (this.state.theme == null) {
                 let hours = new Date().getHours()
@@ -28,20 +28,16 @@ export default class App extends Component {
         this.setState((({ theme }) => ({
             theme: theme === "purple" ? "blue" : "purple"
         })))
-        this.setStorage()
-    }
-    async setStorage() {
-        try {
-            await AsyncStorage.setItem('Theme', this.state.theme == "purple" ? "blue" : "purple")
-        } catch (err) {
-
-        }
     }
     render() {
-        return (
-            <ThemeContext.Provider value={{ theme: this.state.theme, toggleTheme: this.toggleTheme }} >
-                <Router screenProps={this.state.theme} />
-            </ThemeContext.Provider>
-        )
+        if (this.state.theme != null) {
+            return (
+                <ThemeContext.Provider value={{ theme: this.state.theme, toggleTheme: this.toggleTheme }} >
+                    <Routes screenProps={{ theme: this.state.theme }} />
+                </ThemeContext.Provider>
+            )
+        } else {
+            return null
+        }
     }
 }
